@@ -14,9 +14,7 @@ data class ThreeHourForecast(
     val lastUpdatedMillis: Long,
     @Embedded(prefix = "city_")
     val city: City,
-    val averageTemperature: Double,
-    val minTemperature: Double,
-    val maxTemperature: Double,
+    val temperature: Double,
     @field:TypeConverters(RoomTypeConverters::class)
     val weatherConditions: List<WeatherCondition>,
     val humidity: Int // 0-100

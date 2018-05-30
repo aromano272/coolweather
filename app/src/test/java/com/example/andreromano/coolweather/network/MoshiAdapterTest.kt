@@ -1,318 +1,441 @@
 package com.example.andreromano.coolweather.network
 
-import com.example.andreromano.coolweather.City
-import com.example.andreromano.coolweather.DailyForecast
-import com.example.andreromano.coolweather.OpenWeather5Day3HourForecastResponse
-import com.example.andreromano.coolweather.WeatherCondition
-import com.nhaarman.mockito_kotlin.any
+import com.example.andreromano.coolweather.*
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
+import org.joda.time.DateTimeUtils
+import org.junit.Before
 import org.junit.Test
-import com.squareup.moshi.Types
-
-
 
 
 class MoshiAdapterTest {
 
     val moshi = Moshi.Builder()
-        .add(ToDailyForecastAdapter())
+        .add(ToThreeHourForecastAdapter())
         .build()
 
+    val currentTimeMillis = 1337L
+
     val openWeather5Day3HourForecastResponseJson =
-    """
-        {
-           "cod":"200",
-           "message":0,
-           "city":{
-              "geoname_id":524901,
-              "name":"Moscow",
-              "lat":55.7522,
-              "lon":37.6156,
-              "country":"RU",
-              "type":"city",
-              "population":0
-           },
-           "cnt":7,
-           "list":[
-              {
-                 "dt":1485766800,
-                 "temp":{
-                    "day":262.65,
-                    "min":261.41,
-                    "max":262.65,
-                    "night":261.41,
-                    "eve":262.65,
-                    "morn":262.65
-                 },
-                 "pressure":1024.53,
-                 "humidity":76,
-                 "weather":[
-                    {
-                       "id":800,
-                       "main":"Clear",
-                       "description":"sky is clear",
-                       "icon":"01d"
-                    }
-                 ],
-                 "speed":4.57,
-                 "deg":225,
-                 "clouds":0,
-                 "snow":0.01
-              },
-              {
-                 "dt":1485853200,
-                 "temp":{
-                    "day":262.31,
-                    "min":260.98,
-                    "max":265.44,
-                    "night":265.44,
-                    "eve":264.18,
-                    "morn":261.46
-                 },
-                 "pressure":1018.1,
-                 "humidity":91,
-                 "weather":[
-                    {
-                       "id":600,
-                       "main":"Snow",
-                       "description":"light snow",
-                       "icon":"13d"
-                    }
-                 ],
-                 "speed":4.1,
-                 "deg":249,
-                 "clouds":88,
-                 "snow":1.44
-              },
-              {
-                 "dt":1485939600,
-                 "temp":{
-                    "day":270.27,
-                    "min":266.9,
-                    "max":270.59,
-                    "night":268.06,
-                    "eve":269.66,
-                    "morn":266.9
-                 },
-                 "pressure":1010.85,
-                 "humidity":92,
-                 "weather":[
-                    {
-                       "id":600,
-                       "main":"Snow",
-                       "description":"light snow",
-                       "icon":"13d"
-                    }
-                 ],
-                 "speed":4.53,
-                 "deg":298,
-                 "clouds":64,
-                 "snow":0.92
-              },
-              {
-                 "dt":1486026000,
-                 "temp":{
-                    "day":263.46,
-                    "min":255.19,
-                    "max":264.02,
-                    "night":255.59,
-                    "eve":259.68,
-                    "morn":263.38
-                 },
-                 "pressure":1019.32,
-                 "humidity":84,
-                 "weather":[
-                    {
-                       "id":800,
-                       "main":"Clear",
-                       "description":"sky is clear",
-                       "icon":"01d"
-                    }
-                 ],
-                 "speed":3.06,
-                 "deg":344,
-                 "clouds":0
-              },
-              {
-                 "dt":1486112400,
-                 "temp":{
-                    "day":265.69,
-                    "min":256.55,
-                    "max":266,
-                    "night":256.55,
-                    "eve":260.09,
-                    "morn":266
-                 },
-                 "pressure":1012.2,
-                 "humidity":0,
-                 "weather":[
-                    {
-                       "id":600,
-                       "main":"Snow",
-                       "description":"light snow",
-                       "icon":"13d"
-                    }
-                 ],
-                 "speed":7.35,
-                 "deg":24,
-                 "clouds":45,
-                 "snow":0.21
-              },
-              {
-                 "dt":1486198800,
-                 "temp":{
-                    "day":259.95,
-                    "min":254.73,
-                    "max":259.95,
-                    "night":257.13,
-                    "eve":254.73,
-                    "morn":257.02
-                 },
-                 "pressure":1029.5,
-                 "humidity":0,
-                 "weather":[
-                    {
-                       "id":800,
-                       "main":"Clear",
-                       "description":"sky is clear",
-                       "icon":"01d"
-                    }
-                 ],
-                 "speed":2.6,
-                 "deg":331,
-                 "clouds":29
-              },
-              {
-                 "dt":1486285200,
-                 "temp":{
-                    "day":263.13,
-                    "min":259.11,
-                    "max":263.13,
-                    "night":262.01,
-                    "eve":261.32,
-                    "morn":259.11
-                 },
-                 "pressure":1023.21,
-                 "humidity":0,
-                 "weather":[
-                    {
-                       "id":600,
-                       "main":"Snow",
-                       "description":"light snow",
-                       "icon":"13d"
-                    }
-                 ],
-                 "speed":5.33,
-                 "deg":234,
-                 "clouds":46,
-                 "snow":0.04
-              }
-           ]
-        }
+        """
+{
+   "cod":"200",
+   "message":0.004,
+   "cnt":40,
+   "list":[
+      {
+         "dt":1527519600,
+         "main":{
+            "temp":291.79,
+            "temp_min":291.199,
+            "temp_max":291.79,
+            "pressure":1026.76,
+            "sea_level":1029.64,
+            "grnd_level":1026.76,
+            "humidity":83,
+            "temp_kf":0.59
+         },
+         "weather":[
+            {
+               "id":802,
+               "main":"Clouds",
+               "description":"scattered clouds",
+               "icon":"03d"
+            }
+         ],
+         "clouds":{
+            "all":32
+         },
+         "wind":{
+            "speed":7.91,
+            "deg":315.002
+         },
+         "rain":{
+
+         },
+         "sys":{
+            "pod":"d"
+         },
+         "dt_txt":"2018-05-28 15:00:00"
+      },
+      {
+         "dt":1527530400,
+         "main":{
+            "temp":291.44,
+            "temp_min":290.994,
+            "temp_max":291.44,
+            "pressure":1026.91,
+            "sea_level":1029.71,
+            "grnd_level":1026.91,
+            "humidity":83,
+            "temp_kf":0.44
+         },
+         "weather":[
+            {
+               "id":800,
+               "main":"Clear",
+               "description":"clear sky",
+               "icon":"01d"
+            }
+         ],
+         "clouds":{
+            "all":0
+         },
+         "wind":{
+            "speed":8.26,
+            "deg":322.001
+         },
+         "rain":{
+
+         },
+         "sys":{
+            "pod":"d"
+         },
+         "dt_txt":"2018-05-28 18:00:00"
+      },
+      {
+         "dt":1527541200,
+         "main":{
+            "temp":289.75,
+            "temp_min":289.457,
+            "temp_max":289.75,
+            "pressure":1028.26,
+            "sea_level":1031.01,
+            "grnd_level":1028.26,
+            "humidity":90,
+            "temp_kf":0.3
+         },
+         "weather":[
+            {
+               "id":800,
+               "main":"Clear",
+               "description":"clear sky",
+               "icon":"01n"
+            }
+         ],
+         "clouds":{
+            "all":0
+         },
+         "wind":{
+            "speed":7.12,
+            "deg":328
+         },
+         "rain":{
+
+         },
+         "sys":{
+            "pod":"n"
+         },
+         "dt_txt":"2018-05-28 21:00:00"
+      },
+      {
+         "dt":1527552000,
+         "main":{
+            "temp":288.48,
+            "temp_min":288.336,
+            "temp_max":288.48,
+            "pressure":1028.45,
+            "sea_level":1031.35,
+            "grnd_level":1028.45,
+            "humidity":98,
+            "temp_kf":0.15
+         },
+         "weather":[
+            {
+               "id":500,
+               "main":"Rain",
+               "description":"light rain",
+               "icon":"10n"
+            }
+         ],
+         "clouds":{
+            "all":48
+         },
+         "wind":{
+            "speed":5.61,
+            "deg":318.502
+         },
+         "rain":{
+            "3h":0.005
+         },
+         "sys":{
+            "pod":"n"
+         },
+         "dt_txt":"2018-05-29 00:00:00"
+      },
+      {
+         "dt":1527562800,
+         "main":{
+            "temp":287.682,
+            "temp_min":287.682,
+            "temp_max":287.682,
+            "pressure":1027.57,
+            "sea_level":1030.38,
+            "grnd_level":1027.57,
+            "humidity":100,
+            "temp_kf":0
+         },
+         "weather":[
+            {
+               "id":500,
+               "main":"Rain",
+               "description":"light rain",
+               "icon":"10n"
+            }
+         ],
+         "clouds":{
+            "all":44
+         },
+         "wind":{
+            "speed":5.16,
+            "deg":313.504
+         },
+         "rain":{
+            "3h":0.11
+         },
+         "sys":{
+            "pod":"n"
+         },
+         "dt_txt":"2018-05-29 03:00:00"
+      },
+      {
+         "dt":1527573600,
+         "main":{
+            "temp":287.504,
+            "temp_min":287.504,
+            "temp_max":287.504,
+            "pressure":1027.58,
+            "sea_level":1030.31,
+            "grnd_level":1027.58,
+            "humidity":100,
+            "temp_kf":0
+         },
+         "weather":[
+            {
+               "id":500,
+               "main":"Rain",
+               "description":"light rain",
+               "icon":"10n"
+            }
+         ],
+         "clouds":{
+            "all":44
+         },
+         "wind":{
+            "speed":4.82,
+            "deg":308.504
+         },
+         "rain":{
+            "3h":0.01
+         },
+         "sys":{
+            "pod":"d"
+         },
+         "dt_txt":"2018-05-29 06:00:00"
+      },
+      {
+         "dt":1527584400,
+         "main":{
+            "temp":289.216,
+            "temp_min":289.216,
+            "temp_max":289.216,
+            "pressure":1027.82,
+            "sea_level":1030.55,
+            "grnd_level":1027.82,
+            "humidity":93,
+            "temp_kf":0
+         },
+         "weather":[
+            {
+               "id":800,
+               "main":"Clear",
+               "description":"clear sky",
+               "icon":"01d"
+            }
+         ],
+         "clouds":{
+            "all":0
+         },
+         "wind":{
+            "speed":3.13,
+            "deg":300.01
+         },
+         "rain":{
+
+         },
+         "sys":{
+            "pod":"d"
+         },
+         "dt_txt":"2018-05-29 09:00:00"
+      },
+      {
+         "dt":1527595200,
+         "main":{
+            "temp":290.558,
+            "temp_min":290.558,
+            "temp_max":290.558,
+            "pressure":1027.3,
+            "sea_level":1030.06,
+            "grnd_level":1027.3,
+            "humidity":88,
+            "temp_kf":0
+         },
+         "weather":[
+            {
+               "id":800,
+               "main":"Clear",
+               "description":"clear sky",
+               "icon":"01d"
+            }
+         ],
+         "clouds":{
+            "all":0
+         },
+         "wind":{
+            "speed":3.81,
+            "deg":263.5
+         },
+         "rain":{
+
+         },
+         "sys":{
+            "pod":"d"
+         },
+         "dt_txt":"2018-05-29 12:00:00"
+      }
+   ],
+   "city":{
+      "id":8013113,
+      "name":"Almada",
+      "coord":{
+         "lat":38.6789,
+         "lon":-9.1625
+      },
+      "country":"PT"
+   }
+}
     """
 
+
+    @Before
+    fun setup() {
+        DateTimeUtils.setCurrentMillisFixed(currentTimeMillis)
+    }
 
     @Test
-    fun `weather 16 days forecast success response`() {
+    fun `weather 5 days 3 hours forecast success response`() {
         val expectedResponse = OpenWeather5Day3HourForecastResponse(
             city = OpenWeather5Day3HourForecastResponse.City(
-                id = 524901,
-                name = "Moscow",
-                countryIso2 = "RU"
+                id = 8013113,
+                name = "Almada",
+                countryIso2 = "PT"
             ),
             list = listOf(
                 OpenWeather5Day3HourForecastResponse.WeatherEntry(
-                    timeSeconds = 1485766800,
+                    timeSeconds = 1527519600,
                     main = OpenWeather5Day3HourForecastResponse.WeatherEntry.Main(
-                        average = 262.65,
-                        min = 261.41,
-                        max = 262.65,
-                        humidity = 76
+                        average = 291.79,
+                        humidity = 83
                     ),
-                    weather = listOf(OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
-                        id = 800,
-                        icon = "01d"
-                    ))
+                    weather = listOf(
+                        OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
+                            id = 802,
+                            icon = "03d"
+                        )
+                    )
                 ),
                 OpenWeather5Day3HourForecastResponse.WeatherEntry(
-                    timeSeconds = 1485853200,
+                    timeSeconds = 1527530400,
                     main = OpenWeather5Day3HourForecastResponse.WeatherEntry.Main(
-                        average = 262.31,
-                        min = 260.98,
-                        max = 265.44,
-                        humidity = 91
+                        average = 291.44,
+                        humidity = 83
                     ),
-                    weather = listOf(OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
-                        id = 600,
-                        icon = "13d"
-                    ))
+                    weather = listOf(
+                        OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
+                            id = 800,
+                            icon = "01d"
+                        )
+                    )
                 ),
                 OpenWeather5Day3HourForecastResponse.WeatherEntry(
-                    timeSeconds = 1485939600,
+                    timeSeconds = 1527541200,
                     main = OpenWeather5Day3HourForecastResponse.WeatherEntry.Main(
-                        average = 270.27,
-                        min = 266.9,
-                        max = 270.59,
-                        humidity = 92
+                        average = 289.75,
+                        humidity = 90
                     ),
-                    weather = listOf(OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
-                        id = 600,
-                        icon = "13d"
-                    ))
+                    weather = listOf(
+                        OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
+                            id = 800,
+                            icon = "01n"
+                        )
+                    )
                 ),
                 OpenWeather5Day3HourForecastResponse.WeatherEntry(
-                    timeSeconds = 1486026000,
+                    timeSeconds = 1527552000,
                     main = OpenWeather5Day3HourForecastResponse.WeatherEntry.Main(
-                        average = 263.46,
-                        min = 255.19,
-                        max = 264.02,
-                        humidity = 84
+                        average = 288.48,
+                        humidity = 98
                     ),
-                    weather = listOf(OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
-                        id = 800,
-                        icon = "01d"
-                    ))
+                    weather = listOf(
+                        OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
+                            id = 500,
+                            icon = "10n"
+                        )
+                    )
                 ),
                 OpenWeather5Day3HourForecastResponse.WeatherEntry(
-                    timeSeconds = 1486112400,
+                    timeSeconds = 1527562800,
                     main = OpenWeather5Day3HourForecastResponse.WeatherEntry.Main(
-                        average = 265.69,
-                        min = 256.55,
-                        max = 266.00,
-                        humidity = 0
+                        average = 287.682,
+                        humidity = 100
                     ),
-                    weather = listOf(OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
-                        id = 600,
-                        icon = "13d"
-                    ))
+                    weather = listOf(
+                        OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
+                            id = 500,
+                            icon = "10n"
+                        )
+                    )
                 ),
                 OpenWeather5Day3HourForecastResponse.WeatherEntry(
-                    timeSeconds = 1486198800,
+                    timeSeconds = 1527573600,
                     main = OpenWeather5Day3HourForecastResponse.WeatherEntry.Main(
-                        average = 259.95,
-                        min = 254.73,
-                        max = 259.95,
-                        humidity = 0
+                        average = 287.504,
+                        humidity = 100
                     ),
-                    weather = listOf(OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
-                        id = 800,
-                        icon = "01d"
-                    ))
+                    weather = listOf(
+                        OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
+                            id = 500,
+                            icon = "10n"
+                        )
+                    )
                 ),
                 OpenWeather5Day3HourForecastResponse.WeatherEntry(
-                    timeSeconds = 1486285200,
+                    timeSeconds = 1527584400,
                     main = OpenWeather5Day3HourForecastResponse.WeatherEntry.Main(
-                        average = 263.13,
-                        min = 259.11,
-                        max = 263.13,
-                        humidity = 0
+                        average = 289.216,
+                        humidity = 93
                     ),
-                    weather = listOf(OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
-                        id = 600,
-                        icon = "13d"
-                    ))
+                    weather = listOf(
+                        OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
+                            id = 800,
+                            icon = "01d"
+                        )
+                    )
+                ),
+                OpenWeather5Day3HourForecastResponse.WeatherEntry(
+                    timeSeconds = 1527595200,
+                    main = OpenWeather5Day3HourForecastResponse.WeatherEntry.Main(
+                        average = 290.558,
+                        humidity = 88
+                    ),
+                    weather = listOf(
+                        OpenWeather5Day3HourForecastResponse.WeatherEntry.Weather(
+                            id = 800,
+                            icon = "01d"
+                        )
+                    )
                 )
             )
         )
@@ -323,20 +446,35 @@ class MoshiAdapterTest {
     }
 
     @Test
-    fun `weather 16 days forecast success response to list of daily forecasts`() {
+    fun `weather 5 days 3 hours forecast success response to list of daily forecasts`() {
         val expected = listOf(
-            DailyForecast(
-                forecastDateMillis = any(),
-                lastUpdatedMillis = any(),
+            ThreeHourForecast(
+                forecastDateMillis = 1527519600 * 1000L,
+                lastUpdatedMillis = currentTimeMillis,
                 city = City(
-                    id = 524901,
-                    name = "Moscow",
-                    countryIso2 = "RU"
+                    id = 8013113,
+                    name = "Almada",
+                    countryIso2 = "PT"
                 ),
-                averageTemperature = 262.65,
-                minTemperature = 261.41,
-                maxTemperature = 262.65,
-                humidity = 76,
+                temperature = 291.79,
+                humidity = 83,
+                weatherConditions = listOf(
+                    WeatherCondition(
+                        id = 802,
+                        icon = "03d"
+                    )
+                )
+            ),
+            ThreeHourForecast(
+                forecastDateMillis = 1527530400 * 1000L,
+                lastUpdatedMillis = currentTimeMillis,
+                city = City(
+                    id = 8013113,
+                    name = "Almada",
+                    countryIso2 = "PT"
+                ),
+                temperature = 291.44,
+                humidity = 83,
                 weatherConditions = listOf(
                     WeatherCondition(
                         id = 800,
@@ -344,56 +482,84 @@ class MoshiAdapterTest {
                     )
                 )
             ),
-            DailyForecast(
-                forecastDateMillis = any(),
-                lastUpdatedMillis = any(),
+            ThreeHourForecast(
+                forecastDateMillis = 1527541200 * 1000L,
+                lastUpdatedMillis = currentTimeMillis,
                 city = City(
-                    id = 524901,
-                    name = "Moscow",
-                    countryIso2 = "RU"
+                    id = 8013113,
+                    name = "Almada",
+                    countryIso2 = "PT"
                 ),
-                averageTemperature = 262.31,
-                minTemperature = 260.98,
-                maxTemperature = 265.44,
-                humidity = 91,
+                temperature = 289.75,
+                humidity = 90,
                 weatherConditions = listOf(
                     WeatherCondition(
-                        id = 600,
-                        icon = "13d"
+                        id = 800,
+                        icon = "01n"
                     )
                 )
             ),
-            DailyForecast(
-                forecastDateMillis = any(),
-                lastUpdatedMillis = any(),
+            ThreeHourForecast(
+                forecastDateMillis = 1527552000 * 1000L,
+                lastUpdatedMillis = currentTimeMillis,
                 city = City(
-                    id = 524901,
-                    name = "Moscow",
-                    countryIso2 = "RU"
+                    id = 8013113,
+                    name = "Almada",
+                    countryIso2 = "PT"
                 ),
-                averageTemperature = 270.27,
-                minTemperature = 266.9,
-                maxTemperature = 270.59,
-                humidity = 92,
+                temperature = 288.48,
+                humidity = 98,
                 weatherConditions = listOf(
                     WeatherCondition(
-                        id = 600,
-                        icon = "13d"
+                        id = 500,
+                        icon = "10n"
                     )
                 )
             ),
-            DailyForecast(
-                forecastDateMillis = any(),
-                lastUpdatedMillis = any(),
+            ThreeHourForecast(
+                forecastDateMillis = 1527562800 * 1000L,
+                lastUpdatedMillis = currentTimeMillis,
                 city = City(
-                    id = 524901,
-                    name = "Moscow",
-                    countryIso2 = "RU"
+                    id = 8013113,
+                    name = "Almada",
+                    countryIso2 = "PT"
                 ),
-                averageTemperature = 263.46,
-                minTemperature = 255.19,
-                maxTemperature = 264.02,
-                humidity = 84,
+                temperature = 287.682,
+                humidity = 100,
+                weatherConditions = listOf(
+                    WeatherCondition(
+                        id = 500,
+                        icon = "10n"
+                    )
+                )
+            ),
+            ThreeHourForecast(
+                forecastDateMillis = 1527573600 * 1000L,
+                lastUpdatedMillis = currentTimeMillis,
+                city = City(
+                    id = 8013113,
+                    name = "Almada",
+                    countryIso2 = "PT"
+                ),
+                temperature = 287.504,
+                humidity = 100,
+                weatherConditions = listOf(
+                    WeatherCondition(
+                        id = 500,
+                        icon = "10n"
+                    )
+                )
+            ),
+            ThreeHourForecast(
+                forecastDateMillis = 1527584400 * 1000L,
+                lastUpdatedMillis = currentTimeMillis,
+                city = City(
+                    id = 8013113,
+                    name = "Almada",
+                    countryIso2 = "PT"
+                ),
+                temperature = 289.216,
+                humidity = 93,
                 weatherConditions = listOf(
                     WeatherCondition(
                         id = 800,
@@ -401,67 +567,27 @@ class MoshiAdapterTest {
                     )
                 )
             ),
-            DailyForecast(
-                forecastDateMillis = any(),
-                lastUpdatedMillis = any(),
+            ThreeHourForecast(
+                forecastDateMillis = 1527595200 * 1000L,
+                lastUpdatedMillis = currentTimeMillis,
                 city = City(
-                    id = 524901,
-                    name = "Moscow",
-                    countryIso2 = "RU"
+                    id = 8013113,
+                    name = "Almada",
+                    countryIso2 = "PT"
                 ),
-                averageTemperature = 265.69,
-                minTemperature = 256.55,
-                maxTemperature = 266.00,
-                humidity = 0,
-                weatherConditions = listOf(
-                    WeatherCondition(
-                        id = 600,
-                        icon = "13d"
-                    )
-                )
-            ),
-            DailyForecast(
-                forecastDateMillis = any(),
-                lastUpdatedMillis = any(),
-                city = City(
-                    id = 524901,
-                    name = "Moscow",
-                    countryIso2 = "RU"
-                ),
-                averageTemperature = 259.95,
-                minTemperature = 254.73,
-                maxTemperature = 259.95,
-                humidity = 0,
+                temperature = 290.558,
+                humidity = 88,
                 weatherConditions = listOf(
                     WeatherCondition(
                         id = 800,
                         icon = "01d"
-                    )
-                )
-            ),
-            DailyForecast(
-                forecastDateMillis = any(),
-                lastUpdatedMillis = any(),
-                city = City(
-                    id = 524901,
-                    name = "Moscow",
-                    countryIso2 = "RU"
-                ),
-                averageTemperature = 263.13,
-                minTemperature = 259.11,
-                maxTemperature = 263.13,
-                humidity = 0,
-                weatherConditions = listOf(
-                    WeatherCondition(
-                        id = 600,
-                        icon = "13d"
                     )
                 )
             )
         )
 
-        val type = Types.newParameterizedType(List::class.java, DailyForecast::class.java)
-        val actualResponse = moshi.adapter<List<DailyForecast>>(type).fromJson(openWeather5Day3HourForecastResponseJson)
+        val type = Types.newParameterizedType(List::class.java, ThreeHourForecast::class.java)
+        val actualResponse = moshi.adapter<List<ThreeHourForecast>>(type).fromJson(openWeather5Day3HourForecastResponseJson)
 
         assertThat(actualResponse, `is`(expected))
     }

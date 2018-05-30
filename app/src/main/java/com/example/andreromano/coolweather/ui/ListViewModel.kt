@@ -7,7 +7,7 @@ import android.arch.lifecycle.ViewModel
 import android.util.Log
 import android.view.View
 import com.example.andreromano.coolweather.City
-import com.example.andreromano.coolweather.DailyForecast
+import com.example.andreromano.coolweather.ThreeHourForecast
 import com.example.andreromano.coolweather.Either
 import com.example.andreromano.coolweather.network.ApiRequests
 import com.example.andreromano.coolweather.network.ServiceGenerator
@@ -64,16 +64,16 @@ class ListViewModel(
 
     fun onCityClicked(city: City) {
         val service = ServiceGenerator.createService(ApiRequests.OpenWeather::class.java)
-        val call = service.openWeather16DayForecast(city.id)
-        call.enqueue(object : Callback<List<DailyForecast>> {
-            override fun onResponse(call: Call<List<DailyForecast>>, response: Response<List<DailyForecast>>) {
+        val call = service.openWeather5Day3HourForecast(city.id)
+        call.enqueue(object : Callback<List<ThreeHourForecast>> {
+            override fun onResponse(call: Call<List<ThreeHourForecast>>, response: Response<List<ThreeHourForecast>>) {
                 if (response.isSuccessful) {
                     val cneas = response.body()
                     Log.e("DEBUG", cneas.toString())
                 }
             }
 
-            override fun onFailure(call: Call<List<DailyForecast>>, t: Throwable?) {
+            override fun onFailure(call: Call<List<ThreeHourForecast>>, t: Throwable?) {
                 t?.printStackTrace()
             }
         })

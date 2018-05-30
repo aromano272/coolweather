@@ -4,9 +4,8 @@ import android.arch.persistence.room.Room
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import com.example.andreromano.coolweather.data.AppDatabase
-import com.example.andreromano.coolweather.data.DailyForecastDao
+import com.example.andreromano.coolweather.data.ThreeHourForecastDao
 import org.junit.After
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,16 +16,14 @@ import org.junit.Ignore
 @RunWith(AndroidJUnit4::class)
 class SimpleRoomTest {
 
-    lateinit var dailyForecastDao: DailyForecastDao
-    lateinit var db: AppDatabase
+    private lateinit var threeHourForecastDao: ThreeHourForecastDao
+    private lateinit var db: AppDatabase
 
-    val forecast = DailyForecast(
+    private val forecast = ThreeHourForecast(
         1337L,
         1337L,
         City(1337, "Lisbon", "PT"),
         10.0,
-        5.0,
-        15.0,
         listOf(
             WeatherCondition(1, "ICON")
         ),
@@ -37,7 +34,7 @@ class SimpleRoomTest {
     fun setup() {
         val context = InstrumentationRegistry.getContext()
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
-        dailyForecastDao = db.dailyForecastDao()
+        threeHourForecastDao = db.threeHourForecastDao()
     }
 
     @After
@@ -47,19 +44,19 @@ class SimpleRoomTest {
 
     @Test
     fun inserting_forecast_should_correctly_marshal_and_unmarshal_it() {
-        dailyForecastDao.insert(forecast)
+        threeHourForecastDao.insert(forecast)
 
-        val forecasts = dailyForecastDao.getAll()
+        val forecasts = threeHourForecastDao.getAll()
         assertThat(forecasts[0], `is`(equalTo(forecast)))
     }
 
     @Test
     fun inserting_forecast_with_the_same_forecastDateMillis_and_the_same_city_id_should_replace_the_existing_value() {
-        val newForecast = forecast.copy(averageTemperature = 123.123)
-        dailyForecastDao.insert(forecast)
-        dailyForecastDao.insert(newForecast)
+        val newForecast = forecast.copy(temperature = 123.123)
+        threeHourForecastDao.insert(forecast)
+        threeHourForecastDao.insert(newForecast)
 
-        val forecasts = dailyForecastDao.getAll()
+        val forecasts = threeHourForecastDao.getAll()
 
         assertThat(forecasts[0], `is`(equalTo(newForecast)))
         assertThat(forecasts.size, `is`(1))
@@ -74,7 +71,7 @@ class SimpleRoomTest {
         val oportoForecast = forecast.copy(city = oporto)
         val barcelonaForecast = forecast.copy(city = barcelona)
 
-        dailyForecastDao.insert(lisbonForecast, oportoForecast, barcelonaForecast)
+        threeHourForecastDao.insert(lisbonForecast, oportoForecast, barcelonaForecast)
     }
 
 }

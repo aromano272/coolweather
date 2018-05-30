@@ -1,27 +1,10 @@
 package com.example.andreromano.coolweather
 
-class Resource<out T> private constructor(
-    val status: Status,
-    val data: T?,
-    val message: String?
-) {
 
-    enum class Status {
-        LOADING, SUCCESS, ERROR
-    }
+sealed class Resource<out DataType> {
+    data class Loading<out DataType>(val data: DataType?) : Resource<DataType>()
 
-    companion object {
+    data class Success<out DataType>(val data: DataType) : Resource<DataType>()
 
-        fun <T> success(data: T): Resource<T> {
-            return Resource(Status.SUCCESS, data, null)
-        }
-
-        fun <T> error(msg: String, data: T?): Resource<T> {
-            return Resource(Status.ERROR, data, msg)
-        }
-
-        fun <T> loading(data: T?): Resource<T> {
-            return Resource(Status.LOADING, data, null)
-        }
-    }
+    data class Failure<out DataType>(val data: DataType?, val error: Error) : Resource<DataType>()
 }

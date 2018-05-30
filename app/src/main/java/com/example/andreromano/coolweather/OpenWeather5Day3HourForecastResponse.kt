@@ -26,10 +26,6 @@ data class OpenWeather5Day3HourForecastResponse(
         data class Main(
             @Json(name = "temp")
             val average: Double,
-            @Json(name = "temp_min")
-            val min: Double,
-            @Json(name = "temp_max")
-            val max: Double,
             val humidity: Int // 0-100
         )
         @JsonClass(generateAdapter = true)

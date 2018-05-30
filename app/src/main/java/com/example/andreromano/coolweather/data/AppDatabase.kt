@@ -2,13 +2,12 @@ package com.example.andreromano.coolweather.data
 
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
-import android.arch.persistence.room.TypeConverters
-import com.example.andreromano.coolweather.DailyForecast
+import com.example.andreromano.coolweather.ThreeHourForecast
 
 
 @Database(entities = [
-    DailyForecast::class
+    ThreeHourForecast::class
 ], version = 1)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun dailyForecastDao(): DailyForecastDao
+    abstract fun threeHourForecastDao(): ThreeHourForecastDao
 }
