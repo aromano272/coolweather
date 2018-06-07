@@ -6,11 +6,10 @@ import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
 import android.util.Log
 import android.view.View
-import com.example.andreromano.coolweather.City
-import com.example.andreromano.coolweather.ThreeHourForecast
-import com.example.andreromano.coolweather.Either
+import com.example.andreromano.coolweather.*
 import com.example.andreromano.coolweather.network.ApiRequests
 import com.example.andreromano.coolweather.network.ServiceGenerator
+import com.example.andreromano.coolweather.usecases.GetCurrentWeatherByCity
 import com.example.andreromano.coolweather.usecases.SearchCityByName
 import retrofit2.Call
 import retrofit2.Callback
@@ -21,7 +20,8 @@ import retrofit2.Response
 // and a ViewModel with citiesSearchQuery as NULL, result in unsynced view state and viewmodel state
 // maybe this will help: https://medium.com/google-developers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
 class ListViewModel(
-    private val searchCityByName: SearchCityByName
+    private val searchCityByName: SearchCityByName,
+    private val getCurrentWeatherByCity: GetCurrentWeatherByCity
 ) : ViewModel() {
 
     private val citiesSearchQuery = MutableLiveData<String>()
@@ -62,21 +62,20 @@ class ListViewModel(
     val loadingSearchResults: LiveData<Boolean>
         get() = _loadingSearchResults
 
-    fun onCityClicked(city: City) {
-        val service = ServiceGenerator.createService(ApiRequests.OpenWeather::class.java)
-        val call = service.openWeather5Day3HourForecast(city.id)
-        call.enqueue(object : Callback<List<ThreeHourForecast>> {
-            override fun onResponse(call: Call<List<ThreeHourForecast>>, response: Response<List<ThreeHourForecast>>) {
-                if (response.isSuccessful) {
-                    val cneas = response.body()
-                    Log.e("DEBUG", cneas.toString())
-                }
-            }
+    private val _currentWeatherByCity = MutableLiveData<Resource<ThreeHourForecast>>()
+    val currentWeatherByCity: LiveData<Resource<ThreeHourForecast>>
+        get() = _currentWeatherByCity
 
-            override fun onFailure(call: Call<List<ThreeHourForecast>>, t: Throwable?) {
-                t?.printStackTrace()
-            }
-        })
+    private val _navigateToDetails = MutableLiveData<Event<City>>()
+    val navigateToDetails: LiveData<Event<City>>
+        get() = _navigateToDetails
+
+    fun onCityClicked(city: City) {
+        _navigateToDetails.value = Event(city)
+        return
+        getCurrentWeatherByCity(GetCurrentWeatherByCity.Params(city)) { result ->
+            _currentWeatherByCity.value = result
+        }
     }
 
 }

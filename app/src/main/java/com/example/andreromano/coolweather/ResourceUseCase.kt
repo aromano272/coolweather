@@ -29,11 +29,11 @@ import kotlinx.coroutines.experimental.launch
  * By convention each [ResourceUseCase] implementation will execute its job in a background thread
  * (kotlin coroutine) and will post the result in the UI thread.
  */
-abstract class ResourceUseCase<out Type, in Params> where Type : Any {
+abstract class ResourceUseCase<out Response, in Request> where Response : Any {
 
-    abstract fun run(params: Params): Resource<Type>
+    abstract fun run(params: Request): Resource<Response>
 
-    operator fun invoke(params: Params, onResult: (Resource<Type>) -> Unit) {
+    operator fun invoke(params: Request, onResult: (Resource<Response>) -> Unit) {
         val job = async(CommonPool) { run(params) }
         launch(UI) { onResult.invoke(job.await()) }
     }

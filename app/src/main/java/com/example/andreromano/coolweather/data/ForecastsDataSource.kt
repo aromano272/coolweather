@@ -7,6 +7,6 @@ import com.example.andreromano.coolweather.ThreeHourForecast
 
 interface ForecastsDataSource {
 
-    fun getForecastsByCity(city: City): Resource<List<ThreeHourForecast>>
+    fun getForecastsByCity(city: City, from: Long? = null, to: Long? = null): Resource<List<ThreeHourForecast>>
 
 }

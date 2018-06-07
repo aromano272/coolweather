@@ -1,6 +1,5 @@
 package com.example.andreromano.coolweather.ui
 
-
 import android.app.ProgressDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -12,42 +11,58 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.andreromano.coolweather.*
+import com.example.andreromano.coolweather.City
+import com.example.andreromano.coolweather.Resource
+import com.example.andreromano.coolweather.ThreeHourForecast
 import com.example.andreromano.coolweather.data.*
-import com.example.andreromano.coolweather.databinding.FragmentListBinding
-import com.example.andreromano.coolweather.extensions.reObserve
+import com.example.andreromano.coolweather.databinding.FragmentDetailsBinding
 import com.example.andreromano.coolweather.network.OpenWeatherService
 import com.example.andreromano.coolweather.network.ServiceGenerator
 import com.example.andreromano.coolweather.usecases.GetCurrentWeatherByCity
-import com.example.andreromano.coolweather.usecases.SearchCityByName
+import com.example.andreromano.coolweather.usecases.GetNext5DaysDailyForecasts
 
-class ListFragment : Fragment() {
 
-    private lateinit var viewModel: ListViewModel
-    private lateinit var cityAdapter: CityAdapter
+class DetailsFragment : Fragment() {
+
+    companion object {
+        fun newInstance(bundle: Bundle): DetailsFragment {
+            val fragment = DetailsFragment()
+            fragment.arguments = bundle
+            return fragment
+        }
+    }
+
+    private lateinit var viewModel: DetailsViewModel
     private lateinit var progressDialog: ProgressDialog
-    private lateinit var binding: FragmentListBinding
+    private lateinit var binding: FragmentDetailsBinding
+    private lateinit var city: City
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        city = arguments!!["CITY"]!! as City
+
         // TODO: Implement DI
         val database = Room.databaseBuilder(activity!!.applicationContext, AppDatabase::class.java, "dbname").build()
-        val citiesRepository = CitiesRepository(
-            CitiesCacheDataSource(),
-            CitiesLocalDataSource(AssetFileReader(context!!.applicationContext))
-        )
         val forecastsRepository = ForecastsRepository(
             ForecastsLocalDataSource(database.threeHourForecastDao()),
             ForecastsRemoteDataSource(OpenWeatherService(ServiceGenerator.retrofit))
         )
-        val searchCityByName = SearchCityByName(citiesRepository)
         val getCurrentWeatherByCity = GetCurrentWeatherByCity(forecastsRepository)
-        viewModel = ViewModelProviders.of(this, ListViewModelFactory(searchCityByName, getCurrentWeatherByCity)).get(ListViewModel::class.java)
+        val getNext5DaysDailyForecasts = GetNext5DaysDailyForecasts(forecastsRepository)
+        val temperatureConverter = CelsiusTemperatureConverter()
+        val viewModelFactory = DetailsViewModelFactory(
+            city,
+            getCurrentWeatherByCity,
+            getNext5DaysDailyForecasts,
+            temperatureConverter
+        )
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(DetailsViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        binding = FragmentListBinding.inflate(inflater)
+        binding = FragmentDetailsBinding.inflate(inflater)
         binding.viewModel = viewModel
         binding.setLifecycleOwner(this)
 
@@ -55,31 +70,15 @@ class ListFragment : Fragment() {
         progressDialog.setMessage("Loading...")
         progressDialog.setCancelable(false)
 
-        cityAdapter = CityAdapter(emptyList(), viewModel::onCityClicked)
-
-        binding.rvCities.apply {
-            setHasFixedSize(true)
-            adapter = cityAdapter
-        }
-
         return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel.loadingSearchResults.reObserve(this, onLoadingSearchResults)
-        viewModel.citiesSearchResults.reObserve(this, onCitiesSearchResults)
-        viewModel.currentWeatherByCity.reObserve(this, onCurrentWeatherByCity)
-        viewModel.navigateToDetails.reObserve(this, onNavigateToDetails)
-    }
-
-    val onNavigateToDetails = Observer<Event<City>> { event ->
-        event?.getContentIfNotHandled()?.let {
-            (activity as MainActivity).navigateTo(
-                MainActivity.Navigation.DETAILS,
-                Bundle().apply { putParcelable("CITY", it) }
-            )
-        }
+//        viewModel.loadingSearchResults.reObserve(this, onLoadingSearchResults)
+//        viewModel.citiesSearchResults.reObserve(this, onCitiesSearchResults)
+//        viewModel.currentWeatherByCity.reObserve(this, onCurrentWeatherByCity)
+        viewModel.start(city)
     }
 
     val onCurrentWeatherByCity = Observer<Resource<ThreeHourForecast>> { resource ->
@@ -94,17 +93,6 @@ class ListFragment : Fragment() {
             }
         }
         Snackbar.make(binding.root, message, Snackbar.LENGTH_INDEFINITE).show()
-    }
-
-    val onLoadingSearchResults = Observer<Boolean> { show ->
-        if (show != null && show) progressDialog.show()
-        else progressDialog.hide()
-    }
-
-    val onCitiesSearchResults = Observer<List<City>> { cities ->
-        cities?.let {
-            cityAdapter.replaceData(it)
-        }
     }
 
 }

@@ -14,6 +14,18 @@ interface ThreeHourForecastDao {
     @Query("SELECT * FROM threehourforecast")
     fun getAll(): List<ThreeHourForecast>
 
+    @Query("SELECT * FROM threehourforecast WHERE city_id = :cityId")
+    fun getByCity(cityId: Int): List<ThreeHourForecast>
+
+    @Query("""
+        SELECT * FROM threehourforecast
+        WHERE
+            city_id = :cityId AND
+            forecastDateMillis >= :from AND
+            forecastDateMillis <= :to
+    """)
+    fun getByCity(cityId: Int, from: Long, to: Long): List<ThreeHourForecast>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg forecast: ThreeHourForecast)
 

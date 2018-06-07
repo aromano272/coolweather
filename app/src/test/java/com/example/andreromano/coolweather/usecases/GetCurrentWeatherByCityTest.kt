@@ -4,7 +4,6 @@ import com.example.andreromano.coolweather.City
 import com.example.andreromano.coolweather.Resource
 import com.example.andreromano.coolweather.ThreeHourForecast
 import com.example.andreromano.coolweather.data.ForecastsRepository
-import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.given
 import com.nhaarman.mockito_kotlin.verify
 import kotlinx.coroutines.experimental.runBlocking
@@ -44,14 +43,14 @@ class GetCurrentWeatherByCityTest {
     @Before
     fun setUp() {
         getCurrentWeatherByCity = GetCurrentWeatherByCity(forecastsRepository)
-        given { forecastsRepository.getForecastsByCity(city) }.willReturn(Resource.Success(successRepositoryData))
+        given { forecastsRepository.getForecastsByCity(city, null, null) }.willReturn(Resource.Success(successRepositoryData))
     }
 
     @Test
     fun `if the repository succeeds it should filter the results and return an error if there arent any past forecasts`() {
         DateTimeUtils.setCurrentMillisFixed(50)
         val expected = Resource.Failure::class
-        given { forecastsRepository.getForecastsByCity(city) }.willReturn(Resource.Success(successRepositoryData))
+        given { forecastsRepository.getForecastsByCity(city, null, null) }.willReturn(Resource.Success(successRepositoryData))
         val actual = runBlocking { getCurrentWeatherByCity.run(GetCurrentWeatherByCity.Params(city)) }
 
         actual shouldBeInstanceOf expected
@@ -61,7 +60,7 @@ class GetCurrentWeatherByCityTest {
     fun `if the repository succeeds it should filter the results and pick the one with the most recent forecast data but only in the past not the future`() {
         DateTimeUtils.setCurrentMillisFixed(250)
         val expected = Resource.Success(forecast200)
-        given { forecastsRepository.getForecastsByCity(city) }.willReturn(Resource.Success(listOf(forecast300, forecast200, forecast100)))
+        given { forecastsRepository.getForecastsByCity(city, null, null) }.willReturn(Resource.Success(listOf(forecast300, forecast200, forecast100)))
         val actual = runBlocking { getCurrentWeatherByCity.run(GetCurrentWeatherByCity.Params(city)) }
 
         actual shouldEqual expected
@@ -70,7 +69,7 @@ class GetCurrentWeatherByCityTest {
     @Test
     fun `if the repository fails it should return that error`() {
         val failure = Resource.Failure(null, Error("Some Error"))
-        given { forecastsRepository.getForecastsByCity(city) }.willReturn(failure)
+        given { forecastsRepository.getForecastsByCity(city, null, null) }.willReturn(failure)
         val result = runBlocking { getCurrentWeatherByCity.run(GetCurrentWeatherByCity.Params(city)) }
 
         result shouldEqual failure
@@ -80,7 +79,7 @@ class GetCurrentWeatherByCityTest {
     fun `should get data from the repository`() {
         runBlocking { getCurrentWeatherByCity.run(GetCurrentWeatherByCity.Params(city)) }
 
-        verify(forecastsRepository).getForecastsByCity(city)
+        verify(forecastsRepository).getForecastsByCity(city, null, null)
     }
 
 }

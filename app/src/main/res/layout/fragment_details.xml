@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.andreromano.coolweather.ui.DetailsViewModel"
+            />
+        <import type="android.view.View"/>
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <TextView
+            android:id="@+id/tv_city_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.cityName}"
+            android:textSize="32sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_weather_condition"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Barcelonadadasdaadada"
+            />
+
+        <TextView
+            android:id="@+id/tv_country_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.countryName}"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintStart_toStartOf="@+id/tv_city_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_city_name"
+            tools:text="Spain"
+            />
+
+        <ImageView
+            android:id="@+id/iv_weather_condition"
+            android:layout_width="104dp"
+            android:layout_height="104dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/icon_rain_day"
+            />
+
+        <TextView
+            android:id="@+id/tv_temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="56sp"
+            android:fontFamily="sans-serif-light"
+            android:text='@{String.format("%d%s", viewModel.currentTemperature, viewModel.temperatureUnit)}'
+            app:layout_constraintEnd_toEndOf="@+id/iv_weather_condition"
+            app:layout_constraintStart_toStartOf="@+id/iv_weather_condition"
+            app:layout_constraintTop_toBottomOf="@+id/iv_weather_condition"
+            tools:text="16°"
+            />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            >
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="@{viewModel.loadingNextDaysForecasts ? View.VISIBLE : View.GONE}"
+                android:layout_gravity="center"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="@{viewModel.loadingNextDaysForecasts ? View.GONE : View.VISIBLE}"
+                >
+
+                <include
+                    android:id="@+id/partial_next_days_forecast_1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    app:view="@{viewModel.nextDay1View}"
+                    layout="@layout/partial_details_next_days_forecast"
+                    />
+
+                <include
+                    android:id="@+id/partial_next_days_forecast_2"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:view="@{viewModel.nextDay2View}"
+                    layout="@layout/partial_details_next_days_forecast"
+                    />
+
+                <include
+                    android:id="@+id/partial_next_days_forecast_3"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:view="@{viewModel.nextDay3View}"
+                    layout="@layout/partial_details_next_days_forecast"
+                    />
+
+                <include
+                    android:id="@+id/partial_next_days_forecast_4"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    app:view="@{viewModel.nextDay4View}"
+                    layout="@layout/partial_details_next_days_forecast"
+                    />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </android.support.constraint.ConstraintLayout>
+
+</layout>

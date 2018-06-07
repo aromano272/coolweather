@@ -8,9 +8,8 @@
     tools:context=".MainActivity"
     >
 
-    <fragment
-        android:id="@+id/main_fragment"
-        android:name="com.example.andreromano.coolweather.ui.ListFragment"
+    <FrameLayout
+        android:id="@+id/fl_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
