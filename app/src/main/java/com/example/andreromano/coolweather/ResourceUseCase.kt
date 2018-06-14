@@ -33,7 +33,7 @@ abstract class ResourceUseCase<out Response, in Request> where Response : Any {
 
     abstract fun run(params: Request): Resource<Response>
 
-    operator fun invoke(params: Request, onResult: (Resource<Response>) -> Unit) {
+    fun execute(params: Request, onResult: (Resource<Response>) -> Unit) {
         val job = async(CommonPool) { run(params) }
         launch(UI) { onResult.invoke(job.await()) }
     }

@@ -73,7 +73,7 @@ class ListViewModel(
     fun onCityClicked(city: City) {
         _navigateToDetails.value = Event(city)
         return
-        getCurrentWeatherByCity(GetCurrentWeatherByCity.Params(city)) { result ->
+        getCurrentWeatherByCity.execute(GetCurrentWeatherByCity.Params(city)) { result ->
             _currentWeatherByCity.value = result
         }
     }

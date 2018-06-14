@@ -18,8 +18,7 @@ import com.example.andreromano.coolweather.data.*
 import com.example.andreromano.coolweather.databinding.FragmentDetailsBinding
 import com.example.andreromano.coolweather.network.OpenWeatherService
 import com.example.andreromano.coolweather.network.ServiceGenerator
-import com.example.andreromano.coolweather.usecases.GetCurrentWeatherByCity
-import com.example.andreromano.coolweather.usecases.GetNext5DaysDailyForecasts
+import com.example.andreromano.coolweather.usecases.GetCurrentWeatherAndNext4DaysDailyForecasts
 
 
 class DetailsFragment : Fragment() {
@@ -48,12 +47,10 @@ class DetailsFragment : Fragment() {
             ForecastsLocalDataSource(database.threeHourForecastDao()),
             ForecastsRemoteDataSource(OpenWeatherService(ServiceGenerator.retrofit))
         )
-        val getCurrentWeatherByCity = GetCurrentWeatherByCity(forecastsRepository)
-        val getNext5DaysDailyForecasts = GetNext5DaysDailyForecasts(forecastsRepository)
+        val getNext5DaysDailyForecasts = GetCurrentWeatherAndNext4DaysDailyForecasts(forecastsRepository)
         val temperatureConverter = CelsiusTemperatureConverter()
         val viewModelFactory = DetailsViewModelFactory(
             city,
-            getCurrentWeatherByCity,
             getNext5DaysDailyForecasts,
             temperatureConverter
         )

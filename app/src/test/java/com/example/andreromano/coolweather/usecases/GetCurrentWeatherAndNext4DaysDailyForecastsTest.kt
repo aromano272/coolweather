@@ -10,8 +10,6 @@ import com.nhaarman.mockito_kotlin.eq
 import com.nhaarman.mockito_kotlin.given
 import com.nhaarman.mockito_kotlin.verify
 import kotlinx.coroutines.experimental.runBlocking
-import org.amshove.kluent.shouldBeInstanceOf
-import org.amshove.kluent.shouldEqual
 import org.joda.time.DateTime
 import org.joda.time.DateTimeUtils
 import org.junit.Before
@@ -21,9 +19,9 @@ import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class GetNext5DaysDailyForecastsTest {
+class GetCurrentWeatherAndNext4DaysDailyForecastsTest {
 
-    private lateinit var getNext5DaysDailyForecasts: GetNext5DaysDailyForecasts
+    private lateinit var getCurrentWeatherAndNext4DaysDailyForecasts: GetCurrentWeatherAndNext4DaysDailyForecasts
 
     @Mock
     private lateinit var forecastsRepository: ForecastsRepository
@@ -48,7 +46,7 @@ class GetNext5DaysDailyForecastsTest {
 
     @Before
     fun setUp() {
-        getNext5DaysDailyForecasts = GetNext5DaysDailyForecasts(forecastsRepository)
+        getCurrentWeatherAndNext4DaysDailyForecasts = GetCurrentWeatherAndNext4DaysDailyForecasts(forecastsRepository)
         given { forecastsRepository.getForecastsByCity(eq(city), any(), any()) }.willReturn(Resource.Success(successRepositoryData))
     }
 
@@ -59,7 +57,7 @@ class GetNext5DaysDailyForecastsTest {
         val firstDayMin = now.plusDays(1).withTimeAtStartOfDay().millis
         val lastDayMax = now.plusDays(5).millisOfDay().withMaximumValue().millis
 
-        runBlocking { getNext5DaysDailyForecasts.run(GetNext5DaysDailyForecasts.Params(city)) }
+        runBlocking { getCurrentWeatherAndNext4DaysDailyForecasts.run(GetCurrentWeatherAndNext4DaysDailyForecasts.Params(city)) }
 
         verify(forecastsRepository).getForecastsByCity(city, firstDayMin, lastDayMax)
     }
