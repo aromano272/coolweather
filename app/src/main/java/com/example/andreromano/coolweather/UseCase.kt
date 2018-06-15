@@ -15,11 +15,6 @@
  */
 package com.example.andreromano.coolweather
 
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
-
 
 /**
  * Abstract class for a Use Case (Interactor in terms of Clean Architecture).
@@ -29,15 +24,13 @@ import kotlinx.coroutines.experimental.launch
  * By convention each [UseCase] implementation will execute its job in a background thread
  * (kotlin coroutine) and will post the result in the UI thread.
  */
-abstract class UseCase<out Type, in Params> where Type : Any {
+abstract class UseCase<in Request, out Response>
+    where Request : UseCase.RequestValues, Response : UseCase.ResponseValues {
 
-    abstract fun run(params: Params): Either<Error, Type>
+    interface RequestValues
+    interface ResponseValues
 
-    // TODO: Implement invoke operator overload http://blog.karumi.com/kotlin-android-development-6-months-into-it/
-    fun execute(onResult: (Either<Error, Type>) -> Unit, params: Params) {
-        val job = async(CommonPool) { run(params) }
-        launch(UI) { onResult.invoke(job.await()) }
-    }
+    abstract fun run(params: Request): Resource<Response>
 
     class None
 }
